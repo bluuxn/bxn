@@ -59,6 +59,8 @@ void RenderTriangle(Vec2 a, Vec2 b, Vec2 c, Color color);
 
 void RenderQuad(Vec2 a, Vec2 b, Vec2 c, Vec2 d, Color color);
 
+void RenderRect(Rect rect, Color color);
+
 void RenderTexturePro(Texture tex, Rect src, Rect dest, Vec2 origin, float rotation, Color tint);
 
 void RenderTextureRec(Texture tex, Rect src, Vec2 pos, Color tint);

@@ -108,7 +108,8 @@ void RenderPushIndex(int a, int b, int c) {
 }
 
 void RenderTriangle(Vec2 a, Vec2 b, Vec2 c, Color color) {
-    if (_rb.curr_tex.id != _rb.shape_tex.id) {
+    if (_rb.curr_tex.id != _rb.shape_tex.id || _rb.vertexCount+3 >= MAX_VERTICES
+        || _rb.indexCount+3 >= MAX_INDICES) {
         RenderEnd();
         RenderBegin();
         glBindTexture(GL_TEXTURE_2D, _rb.shape_tex.id);
@@ -125,7 +126,8 @@ void RenderTriangle(Vec2 a, Vec2 b, Vec2 c, Color color) {
 }
 
 void RenderQuad(Vec2 a, Vec2 b, Vec2 c, Vec2 d, Color color) {
-    if (_rb.curr_tex.id != _rb.shape_tex.id) {
+    if (_rb.curr_tex.id != _rb.shape_tex.id || _rb.vertexCount+4 >= MAX_VERTICES
+        || _rb.indexCount+6 >= MAX_INDICES) {
         RenderEnd();
         RenderBegin();
         glBindTexture(GL_TEXTURE_2D, _rb.shape_tex.id);
@@ -143,8 +145,15 @@ void RenderQuad(Vec2 a, Vec2 b, Vec2 c, Vec2 d, Color color) {
     RenderPushIndex(initialCount+3, initialCount+2, initialCount+0);
 }
 
+void RenderRect(Rect rect, Color color) {
+    RenderQuad((Vec2){rect.x, rect.y}, (Vec2){rect.x, rect.y+rect.height},
+        (Vec2){rect.x+rect.width, rect.y+rect.height}, (Vec2){rect.x+rect.width, rect.y},
+        color);
+}
+
 void RenderTexturePro(Texture tex, Rect src, Rect dest, Vec2 origin, float rotation, Color tint) {
-    if (_rb.curr_tex.id != tex.id) {
+    if (_rb.curr_tex.id != tex.id || _rb.vertexCount+4 >= MAX_VERTICES
+        || _rb.indexCount+6 >= MAX_INDICES) {
         RenderEnd();
         RenderBegin();
         glBindTexture(GL_TEXTURE_2D, tex.id);
