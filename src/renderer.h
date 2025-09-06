@@ -35,6 +35,10 @@ typedef struct RenderBatch {
     Texture shape_tex;
 
     Mat4 proj;
+    Mat4 view;
+
+    GLint uProj;
+    GLint uView;
 } RenderBatch;
 
 extern RenderBatch _rb;
@@ -50,6 +54,8 @@ void RenderBegin(void);
 void RenderEnd(void);
 
 void Present(void);
+
+void RenderSetProjection(Mat4 proj);
 
 void RenderPushVertex(Vec2 pos, Vec2 uv, Color Color);
 
