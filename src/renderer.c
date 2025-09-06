@@ -123,7 +123,7 @@ void RenderPushIndex(int a, int b, int c) {
 
 void RenderTriangle(Vec2 a, Vec2 b, Vec2 c, Color color) {
     if (_rb.curr_tex.id != _rb.shape_tex.id || _rb.vertexCount+3 >= MAX_VERTICES
-            || _rb.indexCount+3 >= MAX_INDICES) {
+        || _rb.indexCount+3 >= MAX_INDICES) {
         RenderEnd();
         RenderBegin();
         glBindTexture(GL_TEXTURE_2D, _rb.shape_tex.id);
