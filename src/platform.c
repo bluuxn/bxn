@@ -59,3 +59,7 @@ void WindowDestroy(void) {
 bool WindowRunning(void) {
     return !glfwWindowShouldClose(_window);
 }
+
+void WindowGetSize(int *width, int *height) {
+    glfwGetWindowSize(_window, width, height);
+}

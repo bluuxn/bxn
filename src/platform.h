@@ -14,3 +14,5 @@ void WindowInit(int width, int height, const char *title);
 void WindowDestroy(void);
 
 bool WindowRunning(void);
+
+void WindowGetSize(int *width, int *height);

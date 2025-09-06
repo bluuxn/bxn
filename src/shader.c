@@ -17,8 +17,9 @@ const char *_default_vert_source =
 "out vec4 vColor;\n"
 "out vec2 vUV;\n"
 "uniform mat4 uProj;\n"
+"uniform mat4 uView;\n"
 "void main() {\n"
-"  gl_Position = uProj * vec4(aPos, 0, 1);\n"
+"  gl_Position = uProj * uView * vec4(aPos, 0, 1);\n"
 "  vColor = aColor;\n"
 "  vUV = aUV;\n"
 "}\0";
@@ -88,14 +89,6 @@ Shader ShaderCreate(const char *vertSource, const char *fragSource) {
 
 Shader ShaderCreateDefault(void) {
     Shader defaultShader = ShaderCreate(_default_vert_source, _default_frag_source);
-    glUseProgram(defaultShader.programId);
 
-    int width, height;
-    glfwGetWindowSize(_window, &width, &height);
-    Mat4 proj = Mat4Ortho(0, (float)width, (float)height, 0, -1, 1);
-    glUniformMatrix4fv(glGetUniformLocation(defaultShader.programId, "uProj"),
-            1, GL_FALSE, &proj.m00);
-
-    glUseProgram(0);
     return defaultShader;
 }

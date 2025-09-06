@@ -44,6 +44,14 @@ void RenderInit(void) {
     unsigned char shape_data[4] = {255, 255, 255, 255};
     _rb.shape_tex = TextureLoadPro(shape_data, 1, 1);
 
+    int width, height;
+    WindowGetSize(&width, &height);
+    _rb.proj = Mat4Ortho(0.0f, (float)width, (float)height, 0.0f, -1.0f, 1.0f);
+    _rb.view = Mat4Identity();
+
+    _rb.uProj = glGetUniformLocation(_rb.shader.programId, "uProj");
+    _rb.uView = glGetUniformLocation(_rb.shader.programId, "uView");
+
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -67,11 +75,14 @@ void RenderBegin(void) {
 }
 
 void RenderEnd(void) {
+    if (_rb.indexCount == 0) return;
     glBindVertexArray(_rb.vao);
     glBindBuffer(GL_ARRAY_BUFFER, _rb.vbo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _rb.ebo);
     glUseProgram(_rb.shader.programId);
     glBindTexture(GL_TEXTURE_2D, _rb.curr_tex.id);
+    glUniformMatrix4fv(_rb.uProj, 1, GL_FALSE, &_rb.proj.ax);
+    glUniformMatrix4fv(_rb.uView, 1, GL_FALSE, &_rb.view.ax);
 
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * _rb.vertexCount,
             _rb.vertices);
@@ -85,13 +96,16 @@ void RenderEnd(void) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glUseProgram(0);
     glBindTexture(GL_TEXTURE_2D, 0);
-
 }
 
 void Present(void) {
     glfwSwapBuffers(_window);
     glfwPollEvents();
     PollInput();
+}
+
+void RenderSetProjection(Mat4 proj) {
+    _rb.proj = proj;
 }
 
 void RenderPushVertex(Vec2 pos, Vec2 uv, Color color) {
@@ -120,14 +134,14 @@ void RenderTriangle(Vec2 a, Vec2 b, Vec2 c, Color color) {
 
     RenderPushVertex(a, (Vec2){0, 1}, color);
     RenderPushVertex(b, (Vec2){0, 0}, color);
-    RenderPushVertex(a, (Vec2){1, 0}, color);
+    RenderPushVertex(c, (Vec2){1, 0}, color);
 
     RenderPushIndex(initialCount+0, initialCount+1, initialCount+2);
 }
 
 void RenderQuad(Vec2 a, Vec2 b, Vec2 c, Vec2 d, Color color) {
     if (_rb.curr_tex.id != _rb.shape_tex.id || _rb.vertexCount+4 >= MAX_VERTICES
-        || _rb.indexCount+6 >= MAX_INDICES) {
+            || _rb.indexCount+6 >= MAX_INDICES) {
         RenderEnd();
         RenderBegin();
         glBindTexture(GL_TEXTURE_2D, _rb.shape_tex.id);
@@ -147,13 +161,13 @@ void RenderQuad(Vec2 a, Vec2 b, Vec2 c, Vec2 d, Color color) {
 
 void RenderRect(Rect rect, Color color) {
     RenderQuad((Vec2){rect.x, rect.y}, (Vec2){rect.x, rect.y+rect.height},
-        (Vec2){rect.x+rect.width, rect.y+rect.height}, (Vec2){rect.x+rect.width, rect.y},
-        color);
+            (Vec2){rect.x+rect.width, rect.y+rect.height}, (Vec2){rect.x+rect.width, rect.y},
+            color);
 }
 
 void RenderTexturePro(Texture tex, Rect src, Rect dest, Vec2 origin, float rotation, Color tint) {
     if (_rb.curr_tex.id != tex.id || _rb.vertexCount+4 >= MAX_VERTICES
-        || _rb.indexCount+6 >= MAX_INDICES) {
+            || _rb.indexCount+6 >= MAX_INDICES) {
         RenderEnd();
         RenderBegin();
         glBindTexture(GL_TEXTURE_2D, tex.id);
@@ -195,12 +209,12 @@ void RenderTexturePro(Texture tex, Rect src, Rect dest, Vec2 origin, float rotat
 
 void RenderTextureRec(Texture tex, Rect src, Vec2 pos, Color tint) {
     RenderTexturePro(tex, src, (Rect){pos.x, pos.y,
-        tex.width, tex.height}, (Vec2){0, 0}, 0, tint);
+            tex.width, tex.height}, (Vec2){0, 0}, 0, tint);
 }
 
 void RenderTextureEx(Texture tex, Vec2 pos, float rotation, float scale, Color tint) {
     RenderTexturePro(tex, (Rect){0, 0, tex.width, tex.height},
-        (Rect){pos.x, pos.y, tex.width*scale, tex.height*scale}, (Vec2){0, 0}, rotation, tint);
+            (Rect){pos.x, pos.y, tex.width*scale, tex.height*scale}, (Vec2){0, 0}, rotation, tint);
 }
 
 void RenderTextureV(Texture tex, Vec2 pos, Color tint) {
